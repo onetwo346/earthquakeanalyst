@@ -142,7 +142,6 @@
     <button onclick="fetchData()">Fetch Data</button>
     <button onclick="viewDangerousEarthquakes()">View Dangerous Earthquakes</button>
     <button onclick="viewStats()">View Stats</button>
-    <button onclick="viewEarthquakeMap()">View Earthquake Map</button>
     <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
 </div>
 
@@ -151,7 +150,9 @@
     <h2>Earthquake Stats</h2>
     <div id="statsContent">No data recorded yet.</div>
 </div>
-<div id="aiFeedback" style="display: none;"></div>
+<div id="aiFeedback" style="display: none;">
+    <h2>AI Feedback</h2> <!-- Added AI Feedback Title -->
+</div>
 
 <footer>
     <p>Design by Kofi Fosu</p>
@@ -285,6 +286,7 @@
         const today = new Date().toLocaleDateString();
         if (stats[today] && stats[today].length > 0) {
             statsHtml += `<h4>Data for ${today}:</h4>`;
+            statsHtml += `<p><strong>Total Earthquakes Recorded: </strong>${stats[today].length}</p>`;  // Total earthquakes
             stats[today].forEach((quake) => {
                 const { place, mag, time } = quake.properties;
                 const date = new Date(time).toLocaleString();
@@ -293,52 +295,34 @@
                         <div><strong>Location:</strong> ${place}</div>
                         <div><strong>Magnitude:</strong> ${mag.toFixed(1)}</div>
                         <div><strong>Date:</strong> ${date}</div>
-                        <hr />
                     </div>`;
             });
         } else {
-            statsHtml += "<p>No data for today yet.</p>";
+            statsHtml += "<p>No data recorded for today yet.</p>";
         }
 
         statsContent.innerHTML = statsHtml;
     }
 
-    function generateAIAnalysis(data) {
-        const aiFeedback = document.getElementById("aiFeedback");
-        const latestEarthquake = data.features[0];
-
-        if (latestEarthquake) {
-            const mag = latestEarthquake.properties.mag;
-            let analysis = aiInsights[0];
-
-            if (mag >= 4.0) {
-                analysis = aiInsights[0];
-            } else if (mag >= 2.5) {
-                analysis = aiInsights[1];
-            } else {
-                analysis = aiInsights[2];
-            }
-
-            aiFeedback.style.display = "block";
-            aiFeedback.innerHTML = `
-                <div class="ai-prediction">${analysis.prediction}</div>
-                <div class="risk-assessment"><strong>Risk Assessment:</strong><ul>${analysis.riskAssessment.map(item => `<li>${item}</li>`).join('')}</ul></div>
-                <div class="safety-measures"><strong>Safety Measures:</strong><ul>${analysis.safetyMeasures.map(item => `<li>${item}</li>`).join('')}</ul></div>
-            `;
-        }
-    }
-
-    function viewEarthquakeMap() {
-        window.open("https://earthquake.usgs.gov/earthquakes/map", "_blank");
-    }
-
     function toggleDarkMode() {
         isDarkMode = !isDarkMode;
         document.body.classList.toggle("dark-mode", isDarkMode);
-        const footer = document.querySelector("footer");
-        footer.classList.toggle("dark-mode", isDarkMode);
+    }
+
+    function generateAIAnalysis(data) {
+        const aiSection = document.getElementById("aiFeedback");
+        aiSection.style.display = "block";
+
+        const randomIndex = Math.floor(Math.random() * aiInsights.length);
+        const insight = aiInsights[randomIndex];
+
+        aiSection.innerHTML = `
+            <h2>AI Feedback</h2>
+            <div class="ai-prediction">${insight.prediction}</div>
+            <div class="risk-assessment"><strong>Risk Assessment:</strong><br>${insight.riskAssessment.join("<br>")}</div>
+            <div class="safety-measures"><strong>Safety Measures:</strong><br>${insight.safetyMeasures.join("<br>")}</div>
+        `;
     }
 </script>
-
 </body>
 </html>
